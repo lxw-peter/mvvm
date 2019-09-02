@@ -1,3 +1,5 @@
+import { Watcher } from './watcher.js'
+
 export class Compile {
   constructor (el, vm) {
     this.el = this.isElementNode(el) ? el : document.querySelector(el)
@@ -74,14 +76,41 @@ let CompileUtil = {
       return this.getVal(vm, rest[1])
     })
   },
+  setVal (vm, expr, value) {
+    expr = expr.split('.')
+    return expr.reduce((prev, next, currentIndex) => {
+      if (currentIndex === expr.length - 1) {
+        return prev[next] = value
+      }
+      return prev[next]
+    }, vm.$data)
+  },
+
   text (node, vm, expr) { // 文本处理
     let updateFn = this.updater['textUpdater']
     // {{message.a}} => hello
     let value = this.getTextVal(vm, expr)
+    // 加入监控, 数据变化调用出watch的callback
+    // {{a}}{{b}} => {a => watcher ,b => watcher}
+    expr.replace(/\{\{([^}]+)\}\}/g, (...rest) => {
+      new Watcher(vm, rest[1], (newVal) => {
+        updateFn && updateFn(node, this.getTextVal(vm, expr))
+      })
+    })
     updateFn && updateFn(node, value)
   },
+
   model (node, vm, expr) { // 输入框
     let updateFn = this.updater['modelUpdater']
+    // 加入监控, 数据变化调用出watch的callback
+    new Watcher(vm, expr, (newVal) => {
+      updateFn && updateFn(node, newVal)
+    })
+
+    node.addEventListener('input', (e) => {
+      let newVal = e.target.value
+      this.setVal(vm, expr, newVal)
+    })
     updateFn && updateFn(node, this.getVal(vm, expr))
   },
   updater: {

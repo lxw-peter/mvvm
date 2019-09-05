@@ -6,6 +6,11 @@ window.vm = new MVVM({
     message: {
       a: 'hello'
     },
-    b: 2
+    isShow: false
+  },
+  methods: {
+    hideUl () {
+      this.isShow = !this.isShow
+    }
   }
 })

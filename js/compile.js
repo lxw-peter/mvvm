@@ -65,6 +65,7 @@ export class Compile {
   }
 }
 let CompileUtil = {
+  parentNode: {},
   getVal (vm, expr) {
     expr = expr.split('.')
     return expr.reduce((prev, next) => {
@@ -113,12 +114,33 @@ let CompileUtil = {
     })
     updateFn && updateFn(node, this.getVal(vm, expr))
   },
+  show (node, vm, expr) {
+    let updateFn = this.updater['showUpdater']
+    new Watcher(vm, expr, (newVal) => {
+      updateFn && updateFn(node, newVal)
+    })
+    updateFn && updateFn(node, this.getVal(vm, expr))
+  },
+  click (node, vm, expr) {
+    node.addEventListener('click', () => {
+      console.log(0)
+      let fn = vm.$methods[expr].toString().replace(/this/g, 'vm').replace(/.+\{/g, '').replace(/\}$/g, '').trim()
+      new Function(fn)()
+    })
+  },
   updater: {
     textUpdater (node, value) {
       node.textContent = value
     },
     modelUpdater (node, value) {
       node.value = value
+    },
+    showUpdater (node, value) {
+      if (value === true) {
+        node.style.display = 'block'
+      } else {
+        node.style.display = 'none'
+      }
     }
   }
 }

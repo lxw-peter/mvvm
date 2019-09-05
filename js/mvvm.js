@@ -4,7 +4,7 @@ export class MVVM {
   constructor (options) {
     this.$el = options.el
     this.$data = options.data
-
+    this.$methods = options.methods
     if (this.$el) {
       new Observer(this.$data)
       this.proxyData(this.$data)

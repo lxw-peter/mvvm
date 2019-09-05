@@ -22,6 +22,7 @@ export class Watcher {
   update () {
     let newValue = this.getVal(this.vm, this.expr)
     let oldValue = this.value
+    this.value = newValue
     if (newValue !== oldValue) {
       this.cb(newValue)
     }

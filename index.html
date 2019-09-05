@@ -10,10 +10,11 @@
   <div class="app">
     <input type="text" v-model="message.a">
     <div>{{message.a}}</div>
-    <ul>
+    <ul v-show="isShow">
       <li>{{message.a}}</li>
     </ul>
     {{message.a}}
+    <button v-click="hideUl">点我一下</button>
   </div>
   <script type="module" src="./js/main.js"></script>
 </body>
